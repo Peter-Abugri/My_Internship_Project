@@ -58,6 +58,13 @@ FOOTER_TEXT <- "© 2024 Swiss TPH | Confidential"
 
 # Database connection pool (1-5 connections, auto-managed) 
 pool_db <- dbPool(RSQLite::SQLite(), dbname = DB_PATH, minSize = 1, maxSize = 5)
+
+# trying to manually read the data
+
+pp <- setDT(dbReadTable(pool_db, "data"))
+#dbDisconnect(pool_db)
+View(pp)
+
 onStop(function() tryCatch(poolClose(pool_db), silent = TRUE))
 
 # Memoized data functions (cached for performance)
@@ -251,7 +258,7 @@ server <- function(input, output, session) {
            prevalence = sum(prevalenceRate * nHost, na.rm = TRUE) / sum(nHost, na.rm = TRUE),
            incidence = sum(incidenceRate * nHost, na.rm = TRUE) / sum(nHost, na.rm = TRUE),
            deaths = sum(expectedDirectDeaths, na.rm = TRUE)),
-       by = .(scenario_name, year)]
+       keyby = .(scenario_name, year)]
   })
   
   # System info output
